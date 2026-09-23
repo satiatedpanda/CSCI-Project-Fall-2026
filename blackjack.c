@@ -10,7 +10,7 @@
 */
 
 int card_value(int cardnum);
-int print_card(int cardnum);
+void print_card(int cardnum);
 int score_cards(int cards[], int card_idx);
 
 int main(void) {
@@ -18,11 +18,9 @@ int main(void) {
     int inProgress = 0;
     int player_cards[11] = {0};
     int dealer_cards[11] = {0};
-    int current_card_idx = 0; // current idx in deck - random card out of 52*5 cards
-    srand(time(NULL));
-    int CardDecks[260] = {0,14,45,23,27,23,45,44,33,42,21,12}; 
+    int CardDecks[260] = {0,21,45,23,27,23,45,44,33,42,21,12}; 
     int deck_idx = 0;
-    
+    srand(time(NULL));    
     // You get two cards -> dealer gets 1 face up 1 face down card -> you chose your stuff -> dealer does stuff -> reward -> repeat
 
     // Devin : figure out how to generate a card and randomize a deck to get 5 decks
@@ -36,15 +34,6 @@ int main(void) {
         }
         int num_player_cards = 0;
         int num_dealer_cards = 0;
-        //player starting cards
-        player_cards[num_player_cards] = CardDecks[deck_idx];
-        deck_idx++;
-        num_player_cards++;
-        player_cards[num_player_cards] = CardDecks[deck_idx];
-        deck_idx++;
-        num_player_cards++;
-        // check for immediate win
-        // stuff
         //dealer starting cards
         dealer_cards[num_dealer_cards] = CardDecks[deck_idx];
         deck_idx++;
@@ -52,15 +41,22 @@ int main(void) {
         dealer_cards[num_dealer_cards] = CardDecks[deck_idx];
         deck_idx++;
         num_dealer_cards++;
+        //player starting cards
+        player_cards[num_player_cards] = CardDecks[deck_idx];
+        deck_idx++;
+        num_player_cards++;
+        player_cards[num_player_cards] = CardDecks[deck_idx];
+        deck_idx++;
+        num_player_cards++;        
         //player turn
         int player_done = 0;
         int split_num = 0;
         while (player_done == 0) {
             // Hit, Stand, Double Down, Split (the hard one)
             // split can be done a max of 5 times (made so my life is easier, may change if I come up with something else)
-            printf("Dealer's Card: ");
+            printf("\n\nDealer's Card: ");
             print_card(dealer_cards[0]); // only shows one of the dealer's cards
-            printf("\n"); 
+            printf("\n");
             printf("Your Cards: ");            
             for (int i = 0; i < num_player_cards; i++) {
                 print_card(player_cards[i]);
@@ -71,13 +67,14 @@ int main(void) {
             while (good_guess == 0) {
                 int current_score = score_cards(player_cards, num_player_cards);
                 if (current_score >= 21) {
-                    if (current_score == 21) {
+                    if (current_score == 21 && num_player_cards == 2) {
                         printf("Nice Blackjack!\n");
-                    } else {
+                    } else if (current_score > 21) {
                         printf("Bust!\n");
                     }
                     player_done++;
                     good_guess++; // for instant blackjack OR bust                    
+                    player_input = 'Z';
                     continue;
                 } 
                 if (player_cards[0] == player_cards[1]) {
@@ -160,6 +157,7 @@ int main(void) {
         // if (money == 0) {
         //     inprogress++;   
         // }
+        // printf("Player: %d Dealer: %d\n", player_score, dealer_score);
         printf("%d\n", won);
         //ask if want to continue, if no set inprogress to 1
         char second_input;
@@ -174,7 +172,7 @@ int main(void) {
 
 }
 
-int print_card(int cardnum) {
+void print_card(int cardnum) {
     if (cardnum < 0 || cardnum > 51) {
         printf("cardnum out of bounds");
         exit(2);   
@@ -198,7 +196,6 @@ int print_card(int cardnum) {
         type[0] = convert[temp];
     }
     printf("%c%s", suit, type);
-    return 0;
 }
 
 int card_value(int cardnum) {
