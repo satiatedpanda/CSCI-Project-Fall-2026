@@ -69,14 +69,38 @@ int main(void) {
             int good_guess = 0;
             char player_input;            
             while (good_guess == 0) {
-                printf("Select An Option\nHit (H), Stand (S), Double Down (D), and Split (P)\n-> ");
-                scanf("%c", &player_input);
-                char valid_inputs[] = "HSDP";
-                for (int i = 0; i<4; i++) { // Input validation, needs further improvement
-                    if (valid_inputs[i] == player_input) {
-                        good_guess++;
+                int current_score = score_cards(player_cards, num_player_cards);
+                if (current_score >= 21) {
+                    if (current_score == 21) {
+                        printf("Nice Blackjack!\n");
+                    } else {
+                        printf("Bust!\n");
                     }
-                }
+                    player_done++;
+                    good_guess++; // for instant blackjack OR bust                    
+                    continue;
+                } 
+                if (player_cards[0] == player_cards[1]) {
+                    printf("Select An Option\nHit (H), Stand (S), Double Down (D), and Split (P)\n-> ");
+                    scanf("%c%*c", &player_input);
+                    char valid_inputs[] = "HSDP";
+                    for (int i = 0; i<4; i++) { // Input validation, needs further improvement
+                        if (valid_inputs[i] == player_input) {
+                            good_guess++;
+                        }
+                    }
+                } else {
+                    printf("Select An Option\nHit (H), Stand (S), or Double Down (D)\n-> ");
+                    scanf("%c%*c", &player_input);
+                    char valid_inputs[] = "HSD";
+                    for (int i = 0; i<3; i++) { // Input validation, needs further improvement
+                        if (valid_inputs[i] == player_input) {
+                            good_guess++;
+                        }
+                    }
+                }                
+
+         
             }
             if (player_input == 'H') {
                 player_cards[num_player_cards] = CardDecks[deck_idx];
@@ -96,8 +120,8 @@ int main(void) {
             }            
         }
         // dealer turn
+        printf("Dealer Cards: ");        
         for (int i = 0; i < num_dealer_cards; i++) {
-            printf("Dealer Cards: ");
             print_card(dealer_cards[i]);
         }        
         int dealer_done = 0;
@@ -113,6 +137,7 @@ int main(void) {
             }
         
         }
+        printf("\n");
         //payout if won, lose if lost
         int won = 0; // 0 = tie, 1 = win, -1 = loss
         int player_score = score_cards(player_cards, num_player_cards);
@@ -123,7 +148,7 @@ int main(void) {
             if (player_score == 21 && num_player_cards == 2) {
                 // this checks for blackjacks. this should multiply current bid by 1.5x // @todo
                 won = 1;
-            } else if (dealer_score > 21 || player_score < dealer_score) {
+            } else if (dealer_score > 21 || player_score > dealer_score) {
                 won = 1;
             } else if (dealer_score == player_score) {
                 won = 0;
@@ -135,11 +160,12 @@ int main(void) {
         // if (money == 0) {
         //     inprogress++;   
         // }
+        printf("%d\n", won);
         //ask if want to continue, if no set inprogress to 1
-        char player_input;
-        printf("Do you want to continue? Y/n\n-> ");
-        scanf("%c", &player_input);
-        if (player_input != 'Y' && player_input != 'y') {
+        char second_input;
+        printf("\nDo you want to continue? Y/n\n-> ");
+        scanf("%c%*c", &second_input);
+        if (second_input != 'Y' && second_input != 'y') {
             inProgress++;
         } 
     }
