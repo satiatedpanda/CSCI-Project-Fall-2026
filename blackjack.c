@@ -120,7 +120,7 @@ int main(void) {
         for (int k = 0; k < 10; k++)
         {
             if (num_player_cards[k] < 1) {
-                split_depth = k+1;
+                split_depth = k;
                 break;
             }
         }        
@@ -187,21 +187,26 @@ int main(void) {
 void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int dealer_cards[], int player_cards[5][11], int num_player_cards[], int depth) {
     int player_done = 0;
     int has_split = 0;
+    if (depth != 0)
+    {
+        printf("\n\nCurrent Split: %d\n", depth);
+    }
+    
     while (player_done == 0) {
         // Hit, Stand, Double Down, Split (the hard one)
         // split can be done a max of 5 times (made so my life is easier,
         // may change if I come up with something else)
-        printf("\n\nDealer's Card: ");
-        print_card(dealer_cards[0]); // only shows one of the dealer's cards
-        printf("\n");
-        printf("Your Cards: ");
-        for (int i = 0; i < num_player_cards[depth]; i++) {
-            print_card(player_cards[depth][i]);
-        }
-        printf("\n");
         int good_guess = 0;
         char player_input;
         while (good_guess == 0) {
+            printf("Dealer's Card: ");
+            print_card(dealer_cards[0]); // only shows one of the dealer's cards
+            printf("\n\n");
+            printf("Your Cards: ");
+            for (int i = 0; i < num_player_cards[depth]; i++) {
+                print_card(player_cards[depth][i]);
+            }
+            printf("\n");             
             int current_score = score_cards(player_cards[depth], num_player_cards[depth]);
             if (current_score >= 21) {
                 if (current_score == 21 && num_player_cards[depth] == 2) {
@@ -213,7 +218,7 @@ void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int 
                 good_guess++; // for instant blackjack OR bust
                 player_input = 'Z';
                 continue;
-            }
+            }           
             if ((player_cards[depth][0] == player_cards[depth][1]) && (depth < 9) && (has_split == 0)) {
                 printf(
                     "Select An Option\nHit (H), Stand (S), Double Down "
