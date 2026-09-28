@@ -22,7 +22,7 @@ int main(void) {
         }
     }
 
-    for (int i = 0; i < 260; i++) { // Standard Shuffle: Swap each card with a
+    for (int i = 0; i < 260; i++) { // Swap each card with a
                                     // card at a random position
         int random_spot =
             rand() % 260; // Pick a random array index from 0 to 259
