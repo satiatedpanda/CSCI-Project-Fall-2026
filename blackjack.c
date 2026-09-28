@@ -12,6 +12,7 @@
 int card_value(int cardnum);
 void print_card(int cardnum);
 int score_cards(int cards[], int card_idx);
+void swap(int *a, int *b);
 void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int dealer_cards[], int player_cards[5][11], int num_player_cards[], int depth);
 // I did not have an idea of how to make this work without recursion (or a lot of if statements)
 
@@ -21,11 +22,35 @@ int main(void) {
     int inProgress = 0;
     int player_cards[10][11] = {{0}};
     int dealer_cards[11] = {0};
-    int CardDecks[260] = {0, 21, 45, 23, 27, 23, 45, 44, 33, 42, 21, 12};
     int deck_idx = 0;
     int balance; // the initial amount of cents 10000 = 100$
     int bet;     // holds bet value
+    int CardDecks[260]; // Array to store 260 total cards
+    int index =
+        0; // Counter to track the current position in the CardDeck array
 
+    srand(
+        time(NULL)
+    ); // Seeds the random number generator using the system clock
+
+    for (int deck = 0; deck < 5; deck++) { // Loop 5 times for 5 decks
+        for (int card = 0; card < 52;
+             card++) { // Loop through card values 1 to 13
+            // for (int count = 0; count < 4;
+            //      count++) { // Loop 4 times for each card rank per deck
+            //     CardDeck[index] = card; // Store the card value at current index
+            //     index++;                // Move to the next array spot
+            // }
+            CardDecks[index] = card;
+            index++;
+        }
+    }
+    for (int i = 0; i < 260; i++) { // Standard Shuffle: Swap each card with a
+                                    // card at a random position
+        int random_spot =
+            rand() % 260; // Pick a random array index from 0 to 259
+        swap(&CardDecks[i], &CardDecks[random_spot]);
+    }
     printf("Enter starting balance: \n"); // User enters betting amount (Kevin)
     if (scanf("%d%*c", &balance) != 1) { // !=1 assures 1 integer value is entered
         return 1; // reports error / stops program due to user not entering an
@@ -352,4 +377,10 @@ int score_cards(int cards[], int card_idx) {
         }
     }
     return total;
+}
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
