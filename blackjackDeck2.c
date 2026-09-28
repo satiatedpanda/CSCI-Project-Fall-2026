@@ -4,12 +4,9 @@
 
 int main(void) {
     int CardDeck[260]; // Array to store 260 total cards
-    int index =
-        0; // Counter to track the current position in the CardDeck array
+    int index = 0; // Counter to track the current position in the CardDeck array
 
-    srand(
-        time(NULL)
-    ); // Seeds the random number generator using the system clock
+    srand(time(NULL)); // Seeds the random number generator using the system clock
 
     for (int deck = 0; deck < 5; deck++) { // Loop 5 times for 5 decks
         for (int card = 1; card <= 13;
