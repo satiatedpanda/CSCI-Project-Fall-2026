@@ -3,9 +3,9 @@
 #include <string.h>
 #include <time.h>
 
-/*  Figure out how to randomize an array
-    How Combine and shuffle the array
-    How to store bets
+/*  blackjack.c
+    Program runs 1 player blackjack in the terminal
+    Rules fround from: 
     https://bicyclecards.com/how-to-play/blackjack
 */
 
@@ -18,7 +18,6 @@ void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int 
 
 
 int main(void) {
-    int Cards[] = {0}; // not what im making
     int inProgress = 0;
     int player_cards[10][11] = {{0}};
     int dealer_cards[11] = {0};
@@ -35,36 +34,29 @@ int main(void) {
 
     for (int deck = 0; deck < 5; deck++) { // Loop 5 times for 5 decks
         for (int card = 0; card < 52;
-             card++) { // Loop through card values 1 to 13
-            // for (int count = 0; count < 4;
-            //      count++) { // Loop 4 times for each card rank per deck
-            //     CardDeck[index] = card; // Store the card value at current index
-            //     index++;                // Move to the next array spot
-            // }
+             card++) { // Loop through card values 0 to 51
             CardDecks[index] = card;
             index++;
+            }
         }
-    }
     for (int i = 0; i < 260; i++) { // Standard Shuffle: Swap each card with a
                                     // card at a random position
         int random_spot =
             rand() % 260; // Pick a random array index from 0 to 259
         swap(&CardDecks[i], &CardDecks[random_spot]);
     }
-    printf("Enter starting balance: \n"); // User enters betting amount (Kevin)
+    printf("     Welcome to Blackjack!\n\nThis game is about trying to get to 21 points from cards.\n");
+    printf("Each Card is its value, except for 10-K being worth 10.\nAces are worth either 1 or 10\n");
+    printf("You have 4 options each round, Either Hit, Stand, Double Down, or Split\n");
+    printf("\nHit-> Get another Card\nStand-> End your turn\nDouble Down -> Double your bet, and get another card\n");
+    printf("Split-> Only if your starting cards have the same value, Create a new Hand with another card\n\n");
+
+
+    printf("Enter starting balance: \n-> "); // User enters betting amount (Kevin)
     if (scanf("%d%*c", &balance) != 1) { // !=1 assures 1 integer value is entered
         return 1; // reports error / stops program due to user not entering an
                   // integer
     }
-
-    srand(time(NULL));
-    // You get two cards -> dealer gets 1 face up 1 face down card -> you chose
-    // your stuff -> dealer does stuff -> reward -> repeat
-
-    // Devin : figure out how to generate a card and randomize a deck to get 5
-    // decks Kevin : figure out how to bet and store bids, while having a set
-    // amount to gamble // reward system Jacob : figure out the logic for the
-    // dealer and to show the cards delt
 
     while (inProgress == 0 && balance > 0) { // Main game loop Edited by Kevin
         printf(
@@ -72,7 +64,7 @@ int main(void) {
         ); // reports balance as long as balance > 0
 
         printf(
-            "Enter bet (type 0 to quit): \n"
+            "Enter bet (type 0 to quit): \n-> "
         ); // User will enter bet or enter 0 to quit
         if (scanf("%d%*c", &bet) !=
             1) {      // User input gets assigned to the integer bet
@@ -99,8 +91,7 @@ int main(void) {
             for (int j = 0; j < 10; j++)
             {
                 player_cards[j][i] = -1;
-            }
-                        
+            }               
         }
 
         int num_player_cards[10] = {0};
@@ -122,7 +113,7 @@ int main(void) {
         // player turn
         int player_done = 0;
         int split_num = 0;
-        // player turn @todo
+        // player turn
         player_turn(CardDecks, &deck_idx, &balance, &bet, dealer_cards, player_cards, num_player_cards, 0);
         // dealer turn
         printf("Dealer Cards: ");
@@ -151,7 +142,7 @@ int main(void) {
         }        
         for (int k = 0; k < split_depth; k++)
         {
-            // payout if won, lose if lost
+            // payout bet
             int won = 0; // 0 = tie, 1 = win, -1 = loss
             int player_score = score_cards(player_cards[k], num_player_cards[k]);
             int dealer_score = score_cards(dealer_cards, num_dealer_cards);
@@ -160,7 +151,8 @@ int main(void) {
             } else {
                 if (player_score == 21 && num_player_cards[0] == 2) {
                     // this checks for blackjacks. this should multiply current bid
-                    // by 1.5x // @todo
+                    // by 1.5x
+                    bet *= 1.5;
                     won = 1;
                 } else if (dealer_score > 21 || player_score > dealer_score) {
                     won = 1;
@@ -170,8 +162,7 @@ int main(void) {
                     won = -1;
                 }
             }            
-            // money += bet * won
-            // if (money == 0) { // Kevin
+            // Kevin
             if (won == 1) {
                 balance = balance + (bet * 2);
                 printf("\nYou won $%d!\n", bet);
@@ -187,13 +178,11 @@ int main(void) {
                 printf("\nYou are out of money!\n");
                 break;
             }
-            //     inprogress++;
-            // }
             printf("Player: %d Dealer: %d\n", player_score, dealer_score);
         }
         
 
-        // ask if want to continue, if no set inprogress to 1
+    // ask if want to continue, if no set inprogress to 1
     if (balance > 0) {
         char second_input;
             printf("\nDo you want to continue? Y/n\n-> ");
@@ -210,6 +199,9 @@ int main(void) {
 }
 
 void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int dealer_cards[], int player_cards[5][11], int num_player_cards[], int depth) {
+    /*
+    idea for pointers came from: https://stackoverflow.com/questions/23667497/update-int-variable-in-c-inside-a-function
+    */
     int player_done = 0;
     int has_split = 0;
     if (depth != 0)
@@ -308,7 +300,6 @@ void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int 
 
 }
 
-
 void print_card(int cardnum) {
     if (cardnum < 0 || cardnum > 51) {
         printf("cardnum out of bounds");
@@ -380,6 +371,9 @@ int score_cards(int cards[], int card_idx) {
 }
 
 void swap(int *a, int *b) {
+    /*
+    idea came from: https://stackoverflow.com/questions/25925603/swap-function-of-elements-in-array
+    */
     int temp = *a;
     *a = *b;
     *b = temp;
