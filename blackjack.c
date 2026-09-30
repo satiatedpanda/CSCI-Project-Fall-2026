@@ -250,7 +250,7 @@ void player_turn(int CardDecks[], int * deck_idx, int * balance, int * bet, int 
                 player_input = 'Z';
                 continue;
             }           
-            if ((player_cards[depth][0] == player_cards[depth][1]) && (depth < 9) && (has_split == 0)) {
+            if (((player_cards[depth][0] % 13) == (player_cards[depth][1] % 13)) && (depth < 9) && (has_split == 0)) {
                 printf(
                     "Select An Option\nHit (H), Stand (S), Double Down "
                     "(D), and Split (P)\n-> "
