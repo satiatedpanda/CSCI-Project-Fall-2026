@@ -19,7 +19,7 @@ typedef struct {
     unsigned int balance;
 } Player;
 
-
+void init_card(Card *a);
 void shuffle(CardDeck *a);
 
 
@@ -27,7 +27,6 @@ void shuffle(CardDeck *a);
 // @todo, finish main game loop
 int main(void) {
     int num_players;
-    // player 0 = dealer
     do {
         printf("How many Players will be playing? Input an integer from 2-10\n-> ");
         if (scanf(" %d", &num_players) == 0) {
@@ -43,21 +42,25 @@ int main(void) {
     printf("%d players\n", num_players);
     Player PlayerArray[num_players * sizeof(Player)];
     for (int i = 0; i<num_players; i++) {
-        
+        Player a;
+        init_player(&a);
+        PlayerArray[i] = a;
     }
     
     return 0;
 }
 
 
-
+void init_card(Card *a) {
+    a->suit = NULL;
+    *a->value = NULL;
+}
 
 void init_player(Player *a) {
     a->balance = 100;
     a->bet = 0;
     Card null_card;
-    null_card.suit = 'n';
-    *null_card.value = "n";
+    init_card(&null_card);
     a->player_cards[0] = null_card;
     a->player_cards[1] = null_card;
 }
