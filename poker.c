@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
-    char suit; 
+    char suit;
     char value[2];
 } Card;
 
@@ -19,16 +19,16 @@ typedef struct {
     unsigned int balance;
 } Player;
 
-void init_card(Card *a);
-void shuffle(CardDeck *a);
-
-
+void init_card(Card* a);
+void shuffle(CardDeck* a);
 
 // @todo, finish main game loop
 int main(void) {
     int num_players;
     do {
-        printf("How many Players will be playing? Input an integer from 2-10\n-> ");
+        printf(
+            "How many Players will be playing? Input an integer from 2-10\n-> "
+        );
         if (scanf(" %d", &num_players) == 0) {
             printf("Invalid type input\n");
             exit(102);
@@ -41,22 +41,26 @@ int main(void) {
     } while (1);
     printf("%d players\n", num_players);
     Player PlayerArray[num_players * sizeof(Player)];
-    for (int i = 0; i<num_players; i++) {
+    for (int i = 0; i < num_players; i++) {
         Player a;
         init_player(&a);
         PlayerArray[i] = a;
     }
-    
+
     return 0;
 }
-
-
-void init_card(Card *a) {
-    a->suit = NULL;
-    *a->value = NULL;
+void init_deck(CardDeck* a) {
+    for (int i = 0; i < 52; i++) {
+        a->array[i]
+    }
 }
 
-void init_player(Player *a) {
+void init_card(Card* a) {
+    a->suit = '/0';
+    *a->value = '/0';
+}
+
+void init_player(Player* a) {
     a->balance = 100;
     a->bet = 0;
     Card null_card;
@@ -74,43 +78,17 @@ void printcard(Card a, int newline) {
 }
 
 // @todo, return highest numbers based on hand rank
-int hand_rankings(Player *a) {
-    
-    
-    
-    return 0;
-}
+int hand_rankings(Player* a) { return 0; }
 
-void place_bet(Player *a) {
-
-}
+void place_bet(Player* a) {}
 
 // @todo, finish using above structs
-void shuffle(CardDeck *a) {
-    int CardDecks[260]; // Array to store 260 total cards
-    int index =
-        0; // Counter to track the current position in the CardDeck array
+void shuffle(CardDeck* a) {
 
-    srand(
-        time(NULL)
-    ); // Seeds the random number generator using the system clock
-
-    // for (int deck = 0; deck < 5; deck++) { // Loop 5 times for 5 decks
-    //     for (int card = 0; card <= 51;
-    //          card++) { // Loop through card values 1 to 13
-    //         CardDecks[index] = card; // Store the card value at current index
-    //         index++;                // Move to the next array spot            
-    //     }
-    // }
-
-    for (int i = 0; i < 260; i++) { // Standard Shuffle: Swap each card with a
-                                    // card at a random position
-        int random_spot =
-            rand() % 260; // Pick a random array index from 0 to 259
-
-        int temp = CardDecks[i]; // Swap CardDeck[i] and CardDeck[random_spot]
-                                // using a temporary variable
-        CardDecks[i] = CardDecks[random_spot];
-        CardDecks[random_spot] = temp;
+    for (int i = 0; i < 52; i++) {
+        int random_spot = rand() % 52;
+        Card temp = a->array[i];
+        a->array[i] = a->array[random_spot];
+        a->array[random_spot] = temp;
     }
 }
