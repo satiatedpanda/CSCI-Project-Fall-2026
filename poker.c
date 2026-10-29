@@ -9,24 +9,28 @@ typedef struct {
 } Card;
 
 typedef struct {
-    Card array[52 * sizeof(Card)];
+    Card array[52];
     size_t deck_idx;
 } CardDeck;
 
 typedef struct {
-    Card player_cards[2 * sizeof(Card)];
-    unsigned int bet;
-    unsigned int balance;
+    Card player_cards[2];
+    int bet;
+    int balance;
+    int in_play;
+    int player_id;
 } Player;
 
 void init_card(Card *a);
 void shuffle(CardDeck *a);
-
+void init_player(Player *a, int idx);
+void init_deck(CardDeck *a);
 
 
 // @todo, finish main game loop
 int main(void) {
     int num_players;
+    srand(time(NULL));
     do {
         printf("How many Players will be playing? Input an integer from 2-10\n-> ");
         if (scanf(" %d", &num_players) == 0) {
@@ -41,24 +45,90 @@ int main(void) {
     } while (1);
     printf("%d players\n", num_players);
     Player PlayerArray[num_players * sizeof(Player)];
+    int button_idx;
+    button_idx = rand() % num_players;
     for (int i = 0; i<num_players; i++) {
         Player a;
-        init_player(&a);
+        init_player(&a, i);
         PlayerArray[i] = a;
     }
-    
+    CardDeck Deck;
+    init_deck(&Deck);
+    Card Dealer[5];    
+    // printf("\x1b[A"); // this is goes up in the terminal x times, modify the value infront of A to go up xA times
+    // Will use this for hiding player cards
+    int round = 0;
+    while(1) { // main game loop
+        prinf("Round %d:\n", round);        
+        int dealer_idx = 0; // num dealer cards
+        int pool = 0;
+        //remove players who cant play
+
+        Player temp_array[num_players];
+        int added_players = 0;
+        for (int i = 0; i<num_players; i++) {
+            if (PlayerArray[i].balance > 1) {
+                temp_array[added_players] = PlayerArray[i];
+                added_players++;
+            } else {
+                printf("Player %d Elimated!\n", PlayerArray[i].player_id);
+            }
+        }
+        for (int i = 0; i<num_players; i++) {
+            PlayerArray[i] = temp_array[i];
+        }
+        num_players = added_players; // removed elimiated players
+        if (!round) { 
+            button_idx = (button_idx+1)%num_players;
+        }
+        prinf("New First Player - Player %d\n", button_idx);
+
+
+        for (int i = 0; i<num_players; i++) {
+            int current_player = (i + button_idx) % num_players;
+            if (PlayerArray[current_player].in_play == 1) {
+                PlayerArray[current_player].player_cards[0] = Deck.array[Deck.deck_idx];
+                Deck.deck_idx += 1;
+                PlayerArray[current_player].player_cards[0] = Deck.array[Deck.deck_idx];
+                Deck.deck_idx += 1;
+            }
+        }
+
+        // first round of betting- dealer and person to left of dealer need to bid atleast 2 and 1 respectively
+
+
+    }
+
+
+
+
+
     return 0;
 }
 
 
-void init_card(Card *a) {
-    a->suit = NULL;
-    *a->value = NULL;
+void main_game_loop(Player PlayerArray[], int num_players) {
+    CardDeck Deck;
+    init_deck(&Deck);
+    shuffle(&Deck);
+
 }
 
-void init_player(Player *a) {
-    a->balance = 100;
+
+void init_deck(CardDeck *a) {
+
+}
+
+void init_card(Card *a) {
+    a->suit = '\0';
+    *a->value = '\0';
+}
+
+void init_player(Player *a, int idx) {
+    a->balance = 500;
     a->bet = 0;
+    a->in_play = 1;
+    a->player_id = idx+1;
     Card null_card;
     init_card(&null_card);
     a->player_cards[0] = null_card;
@@ -81,9 +151,29 @@ int hand_rankings(Player *a) {
     return 0;
 }
 
-void place_bet(Player *a) {
-
+void bettinground(Player *PlayerArray, int num_players, int button_idx, int first_round) {
+    int passed = 0;
+    int i = 0;
+    
+    int min_bid = 0;
+    while (passed < num_players) {
+        int current_player = (i + button_idx) % num_players;
+        if (current_player == button_idx && first_round) {
+            PlayerArray[current_player].bet = 2;
+        }
+        if (current_player == ((button_idx-1)%num_players) && first_round) {
+            PlayerArray[current_player].bet = 1;
+        }
+        place_bet(&PlayerArray[current_player], &min_bid);
+    }
 }
+
+void place_bet(Player *player, int *min_bid) {
+    while(1) {
+
+    }
+}
+
 
 // @todo, finish using above structs
 void shuffle(CardDeck *a) {
