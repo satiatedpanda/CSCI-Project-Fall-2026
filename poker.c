@@ -144,11 +144,33 @@ void printcard(Card a, int newline) {
 }
 
 // @todo, return highest numbers based on hand rank
-int hand_rankings(Player *a) {
+int hand_rankings(Player *a) { // Kevin's section ... 
+
+    char order[] = "23456789TJQKA" int first = 0 int second = 0
+
+        for (int i = 0; i < 13; i++) {
+        if (a->player_cards[0].value[0] ==
+            order[i]) {    // check first card letter in char order[]
+            first = i + 2; // adds 2 to give value to card
+        }
+
+        if (a->player_card[1].value[0] ==
+            order[i]) {     // check second card in char order[]
+            second = i + 2; // adds 2 to give value to the card
+        }
+    }
+    if (first == 0 ||
+        second == 0) { // if a hand is = 0 or just blank. Returns 0
+        return 0;
+    }
+    if (first == second) { // a pair
+        return 100 + first; // returns 100 and beats everything else
+    }
+    if (first > second) { // if true returns first
+        return first;
+    }
+    return second; // otherwise just returns second
     
-    
-    
-    return 0;
 }
 
 void bettinground(Player *PlayerArray, int num_players, int button_idx, int first_round) {
