@@ -268,37 +268,198 @@ void empty_stdin (void) {
     while (c != '\n' && c != EOF)
         c = getchar();
 }
+// @todo Kevin
+// Looks for 5 cards in a row. have[5] is 1 if we have a 5, 0 if we don't.
+// Gives back the TOP card of the straight, or 0 if theres not one.
+int find_straight(int have[15]) {
+    // Try each possible top card, from ace (14) down to 5.
+    for (int top = 14; top >= 5; top--) {
+        int in_a_row = 0;
 
-// @todo, return highest numbers based on hand rank
-int hand_rankings(Player *a) { // Kevin's section ... 
-
-    char order[] = "23456789TJQKA";
-    int first = 0;
-    int second = 0;
-
-        for (int i = 0; i < 13; i++) {
-        if (a->player_cards[0].value[0] ==
-            order[i]) {    // check first card letter in char order[]
-            first = i + 2; // adds 2 to give value to card
+        // Count how many of the 5 cards (top, top-1, top-2, top-3, top-4) we have.
+        for (int down = 0; down < 5; down++) {
+            int number = top - down;
+            if (number == 1) {
+                number = 14; // the ace can also be low: A-2-3-4-5
+            }
+            if (have[number] == 1) {
+                in_a_row++;
+            }
         }
 
-        if (a->player_cards[1].value[0] ==
-            order[i]) {     // check second card in char order[]
-            second = i + 2; // adds 2 to give value to the card
+        if (in_a_row == 5) {
+            return top;
         }
     }
-    if (first == 0 ||
-        second == 0) { // if a hand is = 0 or just blank. Returns 0
-        return 0;
+    return 0; // no straight
+}
+//@todo Kevin 
+// Gives the players best hand a score. Bigger score = better hand. 
+// Uses 7 cards so players 2 + the dealers 5.
+int hand_rankings(Player* a, Dealer* d) {
+    char order[] = "23456789TJQKA"; // weakest to strongest (spot + 2 = the card's number)
+    char suits[] = "HDCS";
+
+    int number[7] = {0}; // the 7 cards as numbers (2 to 14)
+    char suit[7];        // the 7 cards suits
+
+    //  Get the 7 cards: 2 from the player and 5 from the dealer.
+    for (int card = 0; card < 7; card++) {
+        char letter;
+
+        if (card < 2) {
+            letter = a->player_cards[card].value[0];
+            suit[card] = a->player_cards[card].suit;
+        } else {
+            letter = d->dealer_cards[card - 2].value[0]; // dealer cards start at 0, so -2
+            suit[card] = d->dealer_cards[card - 2].suit;
+        }
+
+        // Turn the letter into a number.
+        for (int spot = 0; spot < 13; spot++) {
+            if (letter == order[spot]) {
+                number[card] = spot + 2;
+            }
+        }
     }
-    if (first == second) { // a pair
-        return 100 + first; // returns 100 and beats everything else
+
+    //  Count the cards. count[9] = how many 9s we have. have[9] = 1 if we have a 9.
+    int count[15] = {0};
+    int have[15] = {0};
+    for (int card = 0; card < 7; card++) {
+        count[number[card]]++;
+        have[number[card]] = 1;
     }
-    if (first > second) { // if true returns first
-        return first;
+
+    //  Check for a flush (5 or more cards of the same suit).
+    int flush = 0;             // 1 if we have a flush
+    int flush_have[15] = {0};  // the numbers we have in the flush suit
+    int flush_high = 0;        // the biggest card in the flush
+
+    for (int which_suit = 0; which_suit < 4; which_suit++) {
+        int how_many = 0;
+        for (int card = 0; card < 7; card++) {
+            if (suit[card] == suits[which_suit]) {
+                how_many++;
+            }
+        }
+
+        if (how_many >= 5) {
+            flush = 1;
+            for (int card = 0; card < 7; card++) {
+                if (suit[card] == suits[which_suit]) {
+                    flush_have[number[card]] = 1;
+                    if (number[card] > flush_high) {
+                        flush_high = number[card];
+                    }
+                }
+            }
+        }
     }
-    return second; // otherwise just returns second
+
+    // Check for straights.
+    int straight_top = find_straight(have);  // 5 in a row, any suits
+    int straight_flush_top = 0;              // 5 in a row, all the same suit
+    if (flush == 1) {
+        straight_flush_top = find_straight(flush_have);
+    }
+
+    // Check for four of a kind, three of a kind, and pairs (biggest cards first).
+    int four = 0;       // the card we have four of (0 = none)
+    int three = 0;      // the card we have three of (0 = none)
+    int pairs = 0;      // how many pairs we have
+    int high_pair = 0;  // bigger pair
+    int low_pair = 0;   // smaller pair
+
+    for (int value = 14; value >= 2; value--) {
+        if (count[value] >= 4) {
+            four = value;
+        } else if (count[value] == 3 && three == 0) {
+            three = value;
+        } else if (count[value] >= 2) {
+            // a pair (a second three of a kind counts as a pair too)
+            pairs++;
+            if (pairs == 1) {
+                high_pair = value;
+            }
+            if (pairs == 2) {
+                low_pair = value;
+            }
+        }
+    }
+
     
+    
+    
+    
+    
+    // Checking  the hands from best to worst
+    // The first one that fits is the answer.
+    // The score is hand number * 10000 + main card * 100 + second card. A higher hand number always wins. The cards only break ties.
+    
+
+    // Royal flush: a straight flush with an ace on top
+    if (straight_flush_top == 14) {
+        return 10 * 10000;
+    }
+    // Straight flush
+    if (straight_flush_top > 0) {
+        return 9 * 10000 + straight_flush_top * 100;
+    }
+    //  Four of a kind
+    if (four > 0) {
+        return 8 * 10000 + four * 100;
+    }
+    // Full house (three of a kind + a pair)
+    if (three > 0 && pairs >= 1) {
+        return 7 * 10000 + three * 100 + high_pair;
+    }
+    // Flush
+    if (flush == 1) {
+        return 6 * 10000 + flush_high * 100;
+    }
+    //  Straight
+    if (straight_top > 0) {
+        return 5 * 10000 + straight_top * 100;
+    }
+    // Three of a kind
+    if (three > 0) {
+        return 4 * 10000 + three * 100;
+    }
+    // Two pair
+    if (pairs >= 2) {
+        return 3 * 10000 + high_pair * 100 + low_pair;
+    }
+    // One pair
+    if (pairs == 1) {
+        return 2 * 10000 + high_pair * 100;
+    }
+
+    // High card: the score is just our biggest card
+    int highest = 0;
+    for (int card = 0; card < 7; card++) {
+        if (number[card] > highest) {
+            highest = number[card];
+        }
+    }
+    return 1 * 10000 + highest * 100;
+}
+
+
+
+const char* hand_name(int score) { // Turns the score back into the hand's name to print it.
+    int hand = score / 10000; // the hand number is the front of the score
+
+    if (hand == 10) return "Royal flush";
+    if (hand == 9) return "Straight flush";
+    if (hand == 8) return "Four of a kind";
+    if (hand == 7) return "Full house";
+    if (hand == 6) return "Flush";
+    if (hand == 5) return "Straight";
+    if (hand == 4) return "Three of a kind";
+    if (hand == 3) return "Two pair";
+    if (hand == 2) return "One pair";
+    return "High card";
 }
 
 void bettinground(Player PlayerArray[], GameParams *Params) {
