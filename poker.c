@@ -51,7 +51,7 @@ int main(void) {
 }
 void init_deck(CardDeck* a) {
     for (int i = 0; i < 52; i++) {
-        a->array[i]
+        a->array[i] = (i % 13) + 1;
     }
 }
 
@@ -84,7 +84,6 @@ void place_bet(Player* a) {}
 
 // @todo, finish using above structs
 void shuffle(CardDeck* a) {
-
     for (int i = 0; i < 52; i++) {
         int random_spot = rand() % 52;
         Card temp = a->array[i];
